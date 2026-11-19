@@ -4,7 +4,7 @@
 
 | 技能 | 适用场景 | 如何开始 |
 | --- | --- | --- |
-| [matt](skills/matt/SKILL.md) | 希望先由主 agent 主持访谈，确认方案并亲自选择简单、中等或复杂路线，再委派实现和两轮审查。 | `$matt 搜索结果应保留项目的全局排名` |
+| [matt](skills/matt/SKILL.md) | 由主 agent 按问题选择或组合 Matt 技能。需要实现时，用户选择路线并确认计划或 Spec。 | `$matt 搜索结果应保留项目的全局排名` |
 | [workloop](skills/workloop/SKILL.md) | 希望按风险选择快速、单票或多票路线，按票验收、独立审查和集成。 | `$workloop 给搜索命令增加大小写无关匹配` |
 
 ## 安装
@@ -19,7 +19,7 @@ npx skills add lizhian/auto-matt --skill matt workloop
 
 ## 运行条件
 
-两项技能都需要宿主支持创建子 agent。`matt` 会按所选路线调用 Matt Pocock 的访谈、Spec、实现与审查技能，请先安装该路线需要的配套技能。[Matt Pocock 技能库](https://github.com/mattpocock/skills)
+`matt` 的入口依赖 `ask-matt`。先安装该技能，再按所选路线安装对应的访谈、Spec、实现或审查技能。`matt` 的独立复核与 `workloop` 的开发流程需要宿主支持子 agent。[Matt Pocock 技能库](https://github.com/mattpocock/skills)
 
 `workloop` 随附中文运行手册、派工模板和验证脚本。对固定 Git 提交运行验证工具需要 Git 和 Node.js 20 或更高版本。[验证手册](skills/workloop/reference/validation.md)
 
