@@ -20,19 +20,19 @@ description: 用户以 /auto-matt、$auto-matt 或自然语言发起此工作流
 
 ## 与用户确定方案和路线
 
-1. **共同探索。** 查看目标项目中 `setup-matt-pocock-skills` 建立的领域文档约定（如项目指令指向的 `docs/agents/domain.md`）。项目已初始化且问题涉及项目术语或设计决策时，使用 `grill-with-docs`，按约定维护术语表和决策记录（ADR）。未初始化或问题适合在对话中定案时，使用 `grill-me`。由主 agent 就目标、范围或验收中影响结果的取舍逐项与用户讨论。
-2. **确认方案。** 把讨论结果整理为具体方案，说明范围和验收条件，请用户确认。有异议就回到讨论，直到用户明确确认当前方案。
-3. **选择实施路线。** 方案确认后，展示下表三条路线，结合本次改动的边界和影响推荐一条并说明理由。等用户选定路线，再准备该路线的产物。
+1. **共同探索。** 查看目标项目中 `setup-matt-pocock-skills` 建立的领域文档约定（如项目指令指向的 `docs/agents/domain.md`）。项目已初始化且问题涉及项目术语或设计决策时，使用 `grill-with-docs`，按约定维护术语表和决策记录（ADR）。未初始化或问题适合在对话中定案时，使用 `grill-me`。在所选访谈中与用户明确目标、范围和验收条件，形成方案。
+2. **确认方案。** 请用户确认访谈得出的方案。用户提出修改时，在同一访谈中修订方案，再请用户确认。
+3. **选择实施路线。** 方案确认后，展示下表三条路线，结合本次改动的边界和影响推荐一条并说明理由。等用户选定路线，再按对应步骤执行。
 
 | 路线 | 适用范围 | 由谁实施 |
 | --- | --- | --- |
-| 简单 | 边界集中，短计划就能说清改动和验收 | 主 agent |
+| 快速 | 改动范围集中，已确认的方案足以指导实现和验收 | 主 agent |
 | 普通 | 需要用 Spec 约定行为和验收，但可作为一个整体交付 | 主 agent 使用 `implement` 委派子 agent |
 | 复杂 | 涉及多个可独立验收的切片，需要安排依赖和并行工作 | 主 agent 使用 `implement-spec` 调度子 agents |
 
 ## 按选定路线实施
 
-- **简单** — 使用当前 agent 的 plan 工具生成开发计划，向用户展示步骤和验收方式。**等用户确认该计划**，由主 agent 实现。
+- **快速** — 用户选定快速路线后，主 agent 直接按已确认的方案实现。
 - **普通** — 主 agent 使用 `to-spec` 生成 Spec，给用户查看完整内容。**等用户确认该 Spec**，主 agent 使用 `implement` 调用子 agent 实现，再核对交付结果。
 - **复杂** — 主 agent 使用 `to-spec` 生成 Spec，给用户查看完整内容。**等用户确认该 Spec**，再使用 `to-tickets` 评估切片规模。此时只展示可选粒度、预估票数及对依赖和并行度的影响。**等用户选定切片规模**，才使用 `to-tickets` 实际拆分并创建票据，然后使用 `implement-spec` 并行委派已解除依赖的切片，按依赖推进直至集成并验收整个 Spec。
 
@@ -64,18 +64,13 @@ flowchart TD
     Explore{"项目已初始化，且问题涉及<br/>项目术语或设计决策？"}
     Explore -->|是| WithDocs["grill-with-docs<br/>按约定维护术语表和 ADR"]
     Explore -->|否| InChat["grill-me<br/>在对话中厘清取舍"]
-    WithDocs --> Discuss
-    InChat --> Discuss
-    Discuss["用户与主 agent 讨论目标、范围和验收条件"] --> Proposal["主 agent 整理并展示方案"]
-    Proposal --> Confirm{"用户确认方案？"}
-    Confirm -->|提出修改| Discuss
+    WithDocs --> Confirm{"用户确认方案？"}
+    InChat --> Confirm
+    Confirm -.->|提出修改，沿用原访谈| Explore
     Confirm -->|确认| Recommend["主 agent 展示三条路线<br/>按边界和影响推荐并说明理由"]
     Recommend --> Route{"用户选择实施路线"}
 
-    Route -->|简单| Plan["用 plan 工具展示开发步骤和验收方式"]
-    Plan --> PlanOK{"用户确认计划？"}
-    PlanOK -->|提出修改| Plan
-    PlanOK -->|确认| Build["主 agent 按计划实现"]
+    Route -->|快速| Build["主 agent 直接按已确认的方案实现"]
 
     Route -->|普通或复杂| Spec["用 to-spec 编写或更新 Spec<br/>展示完整内容"]
     Spec --> SpecOK{"用户确认 Spec？"}
@@ -95,5 +90,5 @@ flowchart TD
     Report(["主 agent 汇报术语表与 ADR 变更、代码改动规模<br/>按实际记录绘制子 agent 甘特图，未委派时注明<br/>用 retro 复盘问题并提出建议"])
 
     classDef user fill:#f8dcdc,stroke:#9d4848,color:#392121
-    class Start,Discuss,Confirm,Route,PlanOK,SpecOK,PickSize user
+    class Start,WithDocs,InChat,Confirm,Route,SpecOK,PickSize user
 ```

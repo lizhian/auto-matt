@@ -4,7 +4,7 @@
 
 | 技能 | 适用场景 | 如何开始 |
 | --- | --- | --- |
-| [auto-matt](skills/auto-matt/SKILL.md) | 与主 agent 共同确定方案，选择实施路线并确认计划或 Spec。复杂路线还由用户选择切片规模。 | `$auto-matt 搜索结果应保留项目的全局排名` |
+| [auto-matt](skills/auto-matt/SKILL.md) | 用户确认方案并选择路线。快速路线由主 agent 直接实现，普通和复杂路线需用户确认 Spec，复杂路线还需选择切片规模。 | `$auto-matt 搜索结果应保留项目的全局排名` |
 | [matt](skills/matt/SKILL.md) | 由主 agent 按问题选择或组合 Matt 技能。需要实现时，用户选择路线并确认计划或 Spec。 | `$matt 搜索结果应保留项目的全局排名` |
 | [workloop](skills/workloop/SKILL.md) | 希望按风险选择快速、单票或多票路线，按票验收、独立审查和集成。 | `$workloop 给搜索命令增加大小写无关匹配` |
 
