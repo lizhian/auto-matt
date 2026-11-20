@@ -44,3 +44,56 @@ description: 用户以 /auto-matt、$auto-matt 或自然语言发起此工作流
 2. 用 Mermaid 甘特图展示各子 agent 的任务、实际起止时间及重叠区间。派工和收回结果时记录时间与状态。未调用子 agent 时直接说明。时间记录缺失时标注缺项，仅绘制可核实的区间。
 3. 按本次任务的差异汇报代码改动规模，给出文件数及新增、删除行数，排除任务开始前已有的无关改动。
 4. 使用 `retro` 复盘本次工作流，依据具体事件指出问题并给出改进建议。
+
+## 流程参考
+
+红色节点由用户在主对话中参与。每次确认只对当前展示的内容生效。用户提出修改时，沿回路更新内容，再请用户确认。
+
+```mermaid
+flowchart TD
+    Start(["用户描述问题<br/>仅输入命令时，请用户补充"]) --> Classify{"主 agent 结合 ask-matt<br/>选择所需技能"}
+    Classify -->|问题定位| Diagnose["diagnosing-bugs<br/>调查根因与证据"]
+    Diagnose -->|未定位或符合预期| Stop(["说明依据与未知项<br/>结束或等待新指令"])
+    Diagnose -->|已定位| Explore
+    Classify -->|正常需求| Explore
+    Classify -->|代码优化| Optimize["探索优化机会与取舍<br/>局部设计用 codebase-design<br/>跨模块架构用 improve-codebase-architecture"]
+    Classify -->|代码审查| Review["code-review<br/>展示发现与证据"]
+    Optimize --> Explore
+    Review --> Explore
+
+    Explore{"项目已初始化，且问题涉及<br/>项目术语或设计决策？"}
+    Explore -->|是| WithDocs["grill-with-docs<br/>按约定维护术语表和 ADR"]
+    Explore -->|否| InChat["grill-me<br/>在对话中厘清取舍"]
+    WithDocs --> Discuss
+    InChat --> Discuss
+    Discuss["用户与主 agent 讨论目标、范围和验收条件"] --> Proposal["主 agent 整理并展示方案"]
+    Proposal --> Confirm{"用户确认方案？"}
+    Confirm -->|提出修改| Discuss
+    Confirm -->|确认| Recommend["主 agent 展示三条路线<br/>按边界和影响推荐并说明理由"]
+    Recommend --> Route{"用户选择实施路线"}
+
+    Route -->|简单| Plan["用 plan 工具展示开发步骤和验收方式"]
+    Plan --> PlanOK{"用户确认计划？"}
+    PlanOK -->|提出修改| Plan
+    PlanOK -->|确认| Build["主 agent 按计划实现"]
+
+    Route -->|普通或复杂| Spec["用 to-spec 编写或更新 Spec<br/>展示完整内容"]
+    Spec --> SpecOK{"用户确认 Spec？"}
+    SpecOK -->|提出修改| Spec
+    SpecOK -->|确认，已选普通| Delegate["用 implement 委派子 agent 实现"]
+    Delegate --> Check["主 agent 核对交付结果"]
+    SpecOK -->|确认，已选复杂| Size["用 to-tickets 评估切片规模<br/>展示粒度、预估票数、依赖和并行度"]
+    Size --> PickSize{"用户选择切片规模"}
+    PickSize -->|调整选项| Size
+    PickSize -->|已选定| Tickets["用 to-tickets 按选定规模创建票据"]
+    Tickets --> Parallel["用 implement-spec 按依赖派工<br/>可开工的切片并行实现"]
+    Parallel --> Integrate["集成并验收整个 Spec"]
+
+    Build --> Report
+    Check --> Report
+    Integrate --> Report
+    Report(["主 agent 汇报术语表与 ADR 变更、代码改动规模<br/>按实际记录绘制子 agent 甘特图，未委派时注明<br/>用 retro 复盘问题并提出建议"])
+
+    classDef user fill:#f8dcdc,stroke:#9d4848,color:#392121
+    class Start,Discuss,Confirm,Route,PlanOK,SpecOK,PickSize user
+```
